@@ -1,0 +1,16 @@
+# Réglages locaux des assistants de code
+.claude/
+.llm-router.yml
+CLAUDE.md
+
+# Secrets et fichiers locaux
+.env
+.env.*
+.netlify/
+
+# Sorties de la CI
+dist/
+lhci-report/
+.lighthouseci/
+__pycache__/
+node_modules/

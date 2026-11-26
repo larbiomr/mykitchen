@@ -1,0 +1,97 @@
+/* Variables et mise en page (mobile d'abord). */
+:root {
+  color-scheme: dark;
+  --fond: #1a1a2e;
+  --section: #16213e;
+  --accent: #e94560;
+  --accent-fort: #c42a47; /* fond des boutons : texte blanc lisible */
+  --sur-accent: #ffffff;
+  --texte: #f1f1f6;
+  --discret: #b4b8ce;
+  --bordure: #2c3a63;
+  --bordure-champ: #6b7bb5; /* contour des champs et boutons : contraste ≥ 3:1 */
+  --accent-texte: #ff6b81; /* petit texte accentué : contraste ≥ 4,5:1 */
+  --alerte: #ff7b7b;
+  --alerte-fond: #4a1c2a;
+  --succes: #5fd39a;
+  --rayon: 14px;
+  --police-titre: "Space Grotesk", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font: 1rem/1.5 Inter, system-ui, sans-serif;
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+h1, h2, .marque { font-family: var(--police-titre); line-height: 1.2; }
+h1 { font-size: 1.7rem; }
+h2 { font-size: 1.15rem; margin: 0 0 0.5rem; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+main:focus { outline: none; }
+main { max-width: 64rem; margin: 0 auto; padding: 0 1rem 1rem; overflow-wrap: anywhere; }
+
+/* Transition entre onglets */
+.entree { animation: apparition 0.25s ease-out; }
+@keyframes apparition { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Barre de navigation en bas sur mobile */
+.nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  display: flex;
+  background: var(--section);
+  border-top: 1px solid var(--bordure);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.1rem;
+  font-size: 0.75rem;
+  text-decoration: none;
+  color: var(--discret);
+}
+
+.nav a span { font-size: 1.3rem; }
+.nav a[aria-current="page"] { color: var(--accent-texte); font-weight: 600; box-shadow: inset 0 3px 0 var(--accent); }
+.marque { display: none; }
+
+/* L'élément qui a le focus ne reste pas caché sous la barre du bas */
+html { scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+::placeholder { color: var(--discret); opacity: 1; }
+
+/* Texte réservé aux lecteurs d'écran */
+.lecteur-seul { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Barre latérale sur grand écran */
+@media (min-width: 768px) {
+  html { scroll-padding-bottom: 0; }
+  body { padding: 0 0 0 14rem; }
+  .nav {
+    inset: 0 auto 0 0;
+    width: 14rem;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem 0.75rem;
+    border-top: 0;
+    border-right: 1px solid var(--bordure);
+  }
+  .marque { display: block; font-size: 1.3rem; font-weight: 700; padding: 0.5rem 0.75rem 1.5rem; }
+  .nav a { flex: none; flex-direction: row; gap: 0.75rem; padding: 0.75rem; font-size: 1rem; border-radius: var(--rayon); }
+  .nav a[aria-current="page"] { background: var(--fond); box-shadow: inset 3px 0 0 var(--accent); }
+  main { padding: 1rem 2rem 2rem; }
+}

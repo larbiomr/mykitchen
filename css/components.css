@@ -1,0 +1,129 @@
+/* Composants (mobile d'abord). */
+.bloc, .carte {
+  background: var(--section);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+}
+
+.bloc { padding: 1rem; margin-bottom: 1rem; }
+
+.formulaire { display: grid; gap: 0.5rem; }
+
+input[type="text"], input[type="date"], select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  background: var(--fond);
+  border: 1px solid var(--bordure-champ);
+  border-radius: var(--rayon);
+}
+
+input[type="checkbox"] { flex: none; width: 1.3rem; height: 1.3rem; accent-color: var(--accent); }
+
+.pastilles { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+
+.pastille, .bouton, .rond {
+  min-height: 2.75rem;
+  background: var(--section);
+  border: 1px solid var(--bordure-champ);
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.pastille:active, .bouton:active, .rond:active { transform: scale(0.96); }
+.pastille { padding: 0 1rem; border-radius: 99px; }
+
+.pastille[aria-pressed="true"], .bouton {
+  background: var(--accent-fort);
+  border-color: var(--accent);
+  color: var(--sur-accent);
+}
+
+.bouton { padding: 0 1.25rem; border-radius: var(--rayon); font-weight: 600; }
+.bouton.large { width: 100%; margin: 0 0 1rem; }
+.rond { flex: none; width: 2.75rem; border-radius: 50%; }
+
+.grille, .liste { list-style: none; margin: 0; padding: 0; }
+.grille { display: grid; gap: 0.75rem; margin-bottom: 1rem; }
+
+.carte { position: relative; }
+.carte-lien { display: flex; flex-direction: column; gap: 0.2rem; height: 100%; padding: 1rem; text-decoration: none; }
+.carte-emoji { font-size: 2.5rem; }
+.carte-titre { font-family: var(--police-titre); font-weight: 700; font-size: 1.1rem; }
+.carte .favori { position: absolute; top: 0.5rem; right: 0.5rem; }
+.discret { color: var(--discret); font-size: 0.9rem; }
+.match { margin-top: auto; font-weight: 600; font-size: 0.9rem; }
+.match.complet { color: var(--succes); }
+progress { width: 100%; height: 0.4rem; accent-color: var(--accent); }
+
+.favori {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.7rem;
+  cursor: pointer;
+}
+
+.liste li { display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.25rem 0; border-bottom: 1px solid var(--bordure); }
+.liste li:last-child { border-bottom: 0; }
+.liste label { display: flex; flex: 1; align-items: center; gap: 0.75rem; min-height: 2.75rem; }
+.article { display: flex; flex: 1; flex-direction: column; }
+.article small { color: var(--discret); }
+input:checked ~ .article { text-decoration: line-through; color: var(--discret); }
+
+/* Alerte rouge : péremption dépassée ou ingrédient manquant */
+.liste li.perime { background: var(--alerte-fond); border-radius: var(--rayon); padding-inline: 0.5rem; }
+.perime small, .manquant, .liste .manquant small { color: var(--alerte); }
+
+.fiche-entete { display: flex; align-items: center; gap: 0.75rem; }
+.fiche-entete p { flex: 1; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.stats div { background: var(--section); border-radius: var(--rayon); padding: 0.5rem 0.75rem; }
+.stats dt { color: var(--discret); font-size: 0.8rem; }
+.stats dd { margin: 0; font-weight: 600; }
+.fiche { display: grid; }
+.etapes { list-style: none; margin: 0; padding: 0; }
+.etapes label { display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.6rem 0; }
+.etapes input:checked + span { text-decoration: line-through; color: var(--discret); }
+
+.vide { text-align: center; color: var(--discret); padding: 2rem 0; }
+.action-vide { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+@media (scripting: none) { .chargement { display: none; } }
+.retour { margin-bottom: 0.75rem; }
+.hors-ecran { position: fixed; left: -100vw; }
+
+.toast {
+  position: fixed;
+  z-index: 20;
+  left: 1rem;
+  right: 1rem;
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  padding: 0.75rem 1rem;
+  border-radius: var(--rayon);
+  background: var(--texte);
+  color: var(--fond);
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.toast.visible { opacity: 1; transform: none; }
+
+@media (min-width: 768px) {
+  .formulaire { grid-template-columns: 2fr 1fr auto; align-items: center; }
+  /* Formulaire du frigo : nom et catégorie, puis date et bouton (évite l'écrasement des champs) */
+  .formulaire:has(input[type="date"]) { grid-template-columns: auto 1fr minmax(8rem, auto); }
+  .formulaire:has(input[type="date"]) input[type="text"] { grid-column: span 2; }
+  .formulaire input[type="date"] { min-width: 10rem; }
+  .grille { grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  .stats { grid-template-columns: repeat(4, 1fr); }
+  .fiche { grid-template-columns: 1fr 1.4fr; gap: 1rem; align-items: start; }
+  .bouton.large { width: auto; min-width: 20rem; }
+  .toast { left: auto; right: 2rem; bottom: 2rem; }
+}

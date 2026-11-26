@@ -1,0 +1,120 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    name: 🔍 Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Secrets, CSP and headers
+        run: python3 scripts/ci_checks.py security
+
+  quality:
+    name: 🧪 Quality Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: HTML validation
+        run: npx --yes htmlhint@1.9.2 --config .htmlhintrc index.html
+      - name: PWA (manifest, icons, service worker)
+        run: python3 scripts/ci_checks.py pwa
+      - name: Tests
+        run: node tests/suite.mjs
+
+  lighthouse:
+    name: 💡 Lighthouse (min. 80)
+    needs: [security, quality]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Stage the files to publish
+        run: |
+          mkdir dist
+          cp -r index.html manifest.json sw.js _headers css js assets dist/
+      - name: Audit
+        run: npx --yes @lhci/cli@0.15.1 autorun --config=lighthouserc.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: lhci-report/
+      # Le site déployé est exactement celui qui a été audité
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist/
+
+  badge:
+    name: 🏷️ Lighthouse badge
+    needs: lighthouse
+    if: ${{ !cancelled() && needs.lighthouse.result != 'skipped' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-report
+          path: lhci-report
+      - name: Publish the score on the badges branch
+        run: |
+          python3 scripts/lighthouse_badge.py lhci-report/manifest.json "$RUNNER_TEMP/lighthouse.json"
+          git switch --orphan badges
+          cp "$RUNNER_TEMP/lighthouse.json" .
+          git add lighthouse.json
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Update Lighthouse badge"
+          git push --force origin badges
+
+  deploy:
+    name: 🚀 Deploy to Netlify
+    needs: [security, quality, lighthouse]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: dist
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          test -n "$NETLIFY_AUTH_TOKEN" || { echo "Missing secret NETLIFY_AUTH_TOKEN (see SETUP.md)"; exit 1; }
+          test -n "$NETLIFY_SITE_ID" || { echo "Missing secret NETLIFY_SITE_ID (see SETUP.md)"; exit 1; }
+          npx --yes netlify-cli@17.38.1 deploy --prod --dir=dist --site="$NETLIFY_SITE_ID" --message="GitHub Actions ${GITHUB_SHA::7}"

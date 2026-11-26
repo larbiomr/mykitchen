@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <!-- Politique de sécurité : tout est interdit sauf les fichiers de l'application et Google Fonts -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MyKitchen</title>
+  <meta name="description" content="Cuisine avec ce que tu as : recettes, frigo et liste de courses.">
+  <meta name="theme-color" content="#1a1a2e">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <nav class="nav" aria-label="Navigation principale">
+    <span class="marque">🍳 MyKitchen</span>
+    <a href="#/frigo"><span aria-hidden="true">🧊</span>Frigo</a>
+    <a href="#/cuisiner"><span aria-hidden="true">🍳</span>Cuisiner</a>
+    <a href="#/courses"><span aria-hidden="true">🛒</span>Courses</a>
+    <a href="#/surprise"><span aria-hidden="true">🎲</span>Surprise</a>
+    <a href="#/favoris"><span aria-hidden="true">♥</span>Favoris</a>
+  </nav>
+  <main id="vue" class="entree" tabindex="-1">
+    <p class="vide chargement">Chargement…</p>
+    <noscript>MyKitchen nécessite JavaScript.</noscript>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <div id="annonce" class="lecteur-seul" role="status"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
